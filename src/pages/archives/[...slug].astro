@@ -1,0 +1,253 @@
+---
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const archives = await getCollection('archives');
+  return archives.map(doc => ({
+    params: { slug: doc.slug },
+    props: { doc },
+  }));
+}
+
+const { doc } = Astro.props;
+const { Content } = await doc.render();
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={doc.data.description} />
+    <title>{doc.data.title} - Bumi Bahru Archives</title>
+    <style>
+      body {
+        font-family: Georgia, serif;
+        max-width: 850px;
+        margin: 0 auto;
+        padding: 2rem;
+        line-height: 1.6;
+        background: #fafafa;
+      }
+      nav {
+        margin: 2rem 0;
+        padding: 1rem;
+        background: #fff;
+        border-left: 4px solid #333;
+      }
+      nav a {
+        margin-right: 1.5rem;
+        color: #333;
+        text-decoration: none;
+      }
+      nav a:hover {
+        text-decoration: underline;
+      }
+      .document-header {
+        background: white;
+        padding: 2rem;
+        margin: 2rem 0;
+        border-left: 4px solid #666;
+      }
+      .document-header h1 {
+        margin-top: 0;
+        border-bottom: 2px solid #333;
+        padding-bottom: 0.5rem;
+        font-size: 1.8rem;
+      }
+      .document-meta {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.5rem 1rem;
+        color: #666;
+        font-size: 0.9rem;
+        margin: 1.5rem 0;
+        padding: 1.5rem;
+        background: #f5f5f5;
+        border-radius: 4px;
+      }
+      .document-meta strong {
+        color: #333;
+      }
+      .classification {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: #e8e8e8;
+        border-radius: 3px;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+      }
+      .classification.confidential {
+        background: #ffe4e4;
+        color: #c00;
+      }
+      .classification.encrypted {
+        background: #e4e4ff;
+        color: #00c;
+      }
+      .subjects {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .subject-tag {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: #e8e8e8;
+        border-radius: 3px;
+        font-size: 0.85rem;
+        color: #555;
+      }
+      .document-content {
+        background: white;
+        padding: 2.5rem;
+        margin: 2rem 0;
+        border-left: 4px solid #999;
+      }
+      .document-content h2 {
+        color: #333;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 0.3rem;
+        margin-top: 2rem;
+      }
+      .document-content h3 {
+        color: #555;
+        margin-top: 1.5rem;
+      }
+      .document-content ul, .document-content ol {
+        margin: 1rem 0;
+      }
+      .document-content li {
+        margin: 0.5rem 0;
+      }
+      .related-docs {
+        background: white;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        border-left: 4px solid #999;
+      }
+      .related-docs h2 {
+        margin-top: 0;
+        font-size: 1.2rem;
+      }
+      .related-docs ul {
+        list-style: none;
+        padding: 0;
+      }
+      .related-docs li {
+        margin: 0.5rem 0;
+      }
+      .related-docs a {
+        color: #333;
+        text-decoration: none;
+      }
+      .related-docs a:hover {
+        color: #000;
+        text-decoration: underline;
+      }
+      .back-link {
+        display: inline-block;
+        margin: 2rem 0;
+        padding: 0.5rem 1rem;
+        background: #333;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+      }
+      .back-link:hover {
+        background: #000;
+      }
+      .browse-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+      .browse-links a {
+        color: #666;
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      .browse-links a:hover {
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/archives">Archives</a>
+      <a href="/blog">Blog</a>
+    </nav>
+
+    <div class="document-header">
+      <h1>{doc.data.title}</h1>
+      
+      <div class="document-meta">
+        <strong>Date:</strong>
+        <span>{doc.data.date}</span>
+        
+        <strong>Document Type:</strong>
+        <span>{doc.data.documentType}</span>
+        
+        <strong>Department:</strong>
+        <span>{doc.data.department}{doc.data.division && ` - ${doc.data.division}`}</span>
+        
+        <strong>Author:</strong>
+        <span>{doc.data.author}</span>
+        
+        {doc.data.classification && (
+          <>
+            <strong>Classification:</strong>
+            <span>
+              <span class={`classification ${doc.data.classification.toLowerCase()}`}>
+                {doc.data.classification}
+              </span>
+            </span>
+          </>
+        )}
+        
+        {doc.data.subjects && doc.data.subjects.length > 0 && (
+          <>
+            <strong>Subjects:</strong>
+            <div class="subjects">
+              {doc.data.subjects.map((subject) => (
+                <span class="subject-tag">{subject}</span>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      {doc.data.description && (
+        <p style="color: #666; font-style: italic; margin-top: 1rem; padding: 1rem; background: #f9f9f9; border-radius: 4px;">
+          {doc.data.description}
+        </p>
+      )}
+    </div>
+
+    <div class="document-content">
+      <Content />
+    </div>
+
+    {doc.data.relatedDocs && doc.data.relatedDocs.length > 0 && (
+      <div class="related-docs">
+        <h2>Related Documents</h2>
+        <ul>
+          {doc.data.relatedDocs.map((slug) => (
+            <li>→ <a href={`/archives/${slug}`}>{slug}</a></li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    <a href="/archives" class="back-link">← Back to Archives</a>
+    
+    <div class="browse-links">
+      <a href="/archives/by-department">Browse by Department</a> | 
+      <a href="/archives/by-type">Browse by Type</a> | 
+      <a href="/archives/by-date">Browse by Date</a> | 
+      <a href="/archives/by-subject">Browse by Subject</a>
+    </div>
+  </body>
+</html>

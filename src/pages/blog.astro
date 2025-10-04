@@ -1,0 +1,107 @@
+---
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+const sortedPosts = posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Blog - Bumi Bahru Archive</title>
+    <style>
+      body {
+        font-family: Georgia, serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        line-height: 1.6;
+        background: #fafafa;
+      }
+      h1 {
+        border-bottom: 2px solid #333;
+        padding-bottom: 0.5rem;
+      }
+      nav {
+        margin: 2rem 0;
+        padding: 1rem;
+        background: #fff;
+        border-left: 4px solid #333;
+      }
+      nav a {
+        margin-right: 1.5rem;
+        color: #333;
+        text-decoration: none;
+      }
+      nav a:hover {
+        text-decoration: underline;
+      }
+      .post-list {
+        list-style: none;
+        padding: 0;
+      }
+      .post-item {
+        background: white;
+        margin: 1.5rem 0;
+        padding: 1.5rem;
+        border-left: 4px solid #999;
+      }
+      .post-item h2 {
+        margin-top: 0;
+      }
+      .post-item a {
+        color: #333;
+        text-decoration: none;
+      }
+      .post-item a:hover {
+        color: #000;
+      }
+      .meta {
+        color: #666;
+        font-size: 0.9rem;
+        margin: 0.5rem 0;
+      }
+      .tags {
+        margin-top: 0.5rem;
+      }
+      .tag {
+        display: inline-block;
+        background: #eee;
+        padding: 0.2rem 0.5rem;
+        margin-right: 0.5rem;
+        font-size: 0.85rem;
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/archives">Archives</a>
+      <a href="/blog">Blog</a>
+    </nav>
+
+    <h1>Curator's Notes</h1>
+    <p>Behind the scenes of the Bumi Bahru archive</p>
+
+    <ul class="post-list">
+      {sortedPosts.map((post) => (
+        <li class="post-item">
+          <h2><a href={`/blog/${post.slug}`}>{post.data.title}</a></h2>
+          <div class="meta">
+            <strong>Date:</strong> {post.data.date.toLocaleDateString()}
+          </div>
+          <p>{post.data.description}</p>
+          {post.data.tags && (
+            <div class="tags">
+              {post.data.tags.map(tag => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
+  </body>
+</html>

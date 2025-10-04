@@ -1,0 +1,150 @@
+---
+import { getCollection } from 'astro:content';
+
+const archives = await getCollection('archives');
+
+// Group by subject (documents can appear under multiple subjects)
+const bySubject = archives.reduce((acc, doc) => {
+  doc.data.subjects.forEach(subject => {
+    if (!acc[subject]) acc[subject] = [];
+    acc[subject].push(doc);
+  });
+  return acc;
+}, {} as Record<string, typeof archives>);
+
+// Sort documents within each subject by sortDate
+Object.keys(bySubject).forEach(subject => {
+  bySubject[subject].sort((a, b) => b.data.sortDate.valueOf() - a.data.sortDate.valueOf());
+});
+
+const subjects = Object.keys(bySubject).sort();
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Browse by Subject - Bumi Bahru Archives</title>
+    <style>
+      body {
+        font-family: Georgia, serif;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem;
+        line-height: 1.6;
+        background: #fafafa;
+      }
+      h1, h2 {
+        border-bottom: 2px solid #333;
+        padding-bottom: 0.5rem;
+      }
+      nav {
+        margin: 2rem 0;
+        padding: 1rem;
+        background: #fff;
+        border-left: 4px solid #333;
+      }
+      nav a {
+        margin-right: 1.5rem;
+        color: #333;
+        text-decoration: none;
+      }
+      nav a:hover {
+        text-decoration: underline;
+      }
+      .back-link {
+        display: inline-block;
+        margin: 1rem 0;
+        color: #666;
+        text-decoration: none;
+      }
+      .back-link:hover {
+        color: #333;
+      }
+      .subject-section {
+        background: white;
+        margin: 2rem 0;
+        padding: 1.5rem;
+        border-left: 4px solid #666;
+      }
+      .subject-section h2 {
+        margin-top: 0;
+        color: #333;
+        border: none;
+        padding-bottom: 0;
+      }
+      .doc-count {
+        color: #666;
+        font-size: 0.9rem;
+        font-weight: normal;
+        margin-left: 0.5rem;
+      }
+      .document-list {
+        list-style: none;
+        padding: 0;
+        margin-top: 1rem;
+      }
+      .document-item {
+        padding: 1rem 0;
+        border-bottom: 1px solid #eee;
+      }
+      .document-item:last-child {
+        border-bottom: none;
+      }
+      .document-item h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.1rem;
+      }
+      .document-item a {
+        color: #333;
+        text-decoration: none;
+      }
+      .document-item a:hover {
+        color: #000;
+        text-decoration: underline;
+      }
+      .meta {
+        color: #666;
+        font-size: 0.9rem;
+      }
+      .description {
+        color: #555;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/archives">Archives</a>
+      <a href="/blog">Blog</a>
+    </nav>
+
+    <a href="/archives" class="back-link">← Back to Archives</a>
+
+    <h1>Browse by Subject</h1>
+    <p>Documents organized by thematic content and topics</p>
+
+    {subjects.map((subject) => (
+      <div class="subject-section">
+        <h2>
+          {subject}
+          <span class="doc-count">({bySubject[subject].length} document{bySubject[subject].length !== 1 ? 's' : ''})</span>
+        </h2>
+        <ul class="document-list">
+          {bySubject[subject].map((doc) => (
+            <li class="document-item">
+              <h3><a href={`/archives/${doc.slug}`}>{doc.data.title}</a></h3>
+              <div class="meta">
+                {doc.data.date} | {doc.data.documentType} | {doc.data.department}
+              </div>
+              <p class="description">{doc.data.description}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </body>
+</html>

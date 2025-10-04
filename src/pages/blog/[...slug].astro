@@ -1,0 +1,129 @@
+---
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map(post => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{post.data.title} - Bumi Bahru Archive</title>
+    <style>
+      body {
+        font-family: Georgia, serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        line-height: 1.6;
+        background: #fafafa;
+      }
+      nav {
+        margin: 2rem 0;
+        padding: 1rem;
+        background: #fff;
+        border-left: 4px solid #333;
+      }
+      nav a {
+        margin-right: 1.5rem;
+        color: #333;
+        text-decoration: none;
+      }
+      nav a:hover {
+        text-decoration: underline;
+      }
+      .post-header {
+        background: white;
+        padding: 2rem;
+        margin: 2rem 0;
+        border-left: 4px solid #999;
+      }
+      .post-header h1 {
+        margin-top: 0;
+        border-bottom: 2px solid #333;
+        padding-bottom: 0.5rem;
+      }
+      .post-meta {
+        color: #666;
+        font-size: 0.9rem;
+        margin: 1rem 0;
+      }
+      .tags {
+        margin-top: 1rem;
+      }
+      .tag {
+        display: inline-block;
+        background: #eee;
+        padding: 0.3rem 0.7rem;
+        margin-right: 0.5rem;
+        font-size: 0.85rem;
+        border-radius: 3px;
+      }
+      .post-content {
+        background: white;
+        padding: 2rem;
+        margin: 2rem 0;
+      }
+      .post-content h2 {
+        color: #333;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 0.3rem;
+        margin-top: 2rem;
+      }
+      .post-content h3 {
+        color: #555;
+        margin-top: 1.5rem;
+      }
+      .back-link {
+        display: inline-block;
+        margin: 2rem 0;
+        padding: 0.5rem 1rem;
+        background: #333;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+      }
+      .back-link:hover {
+        background: #000;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/echoes">Echoes</a>
+      <a href="/blog">Blog</a>
+    </nav>
+
+    <div class="post-header">
+      <h1>{post.data.title}</h1>
+      
+      <div class="post-meta">
+        <strong>Published:</strong> {post.data.date.toLocaleDateString()}
+      </div>
+
+      {post.data.tags && (
+        <div class="tags">
+          {post.data.tags.map(tag => (
+            <span class="tag">{tag}</span>
+          ))}
+        </div>
+      )}
+    </div>
+
+    <div class="post-content">
+      <Content />
+    </div>
+
+    <a href="/blog" class="back-link">← Back to Blog</a>
+  </body>
+</html>

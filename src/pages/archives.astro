@@ -1,0 +1,166 @@
+---
+import { getCollection } from 'astro:content';
+
+const archives = await getCollection('archives');
+// Sort by sortDate for chronological order
+const sortedArchives = archives.sort((a, b) => b.data.sortDate.valueOf() - a.data.sortDate.valueOf());
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Document Archives - Bumi Bahru</title>
+    <style>
+      body {
+        font-family: Georgia, serif;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem;
+        line-height: 1.6;
+        background: #fafafa;
+      }
+      h1 {
+        border-bottom: 2px solid #333;
+        padding-bottom: 0.5rem;
+      }
+      nav {
+        margin: 2rem 0;
+        padding: 1rem;
+        background: #fff;
+        border-left: 4px solid #333;
+      }
+      nav a {
+        margin-right: 1.5rem;
+        color: #333;
+        text-decoration: none;
+      }
+      nav a:hover {
+        text-decoration: underline;
+      }
+      .browse-dimensions {
+        background: white;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        border-left: 4px solid #333;
+      }
+      .browse-dimensions h2 {
+        margin-top: 0;
+        font-size: 1.2rem;
+      }
+      .browse-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+      .browse-links a {
+        display: block;
+        padding: 0.75rem;
+        background: #f5f5f5;
+        color: #333;
+        text-decoration: none;
+        border-left: 3px solid #666;
+        transition: all 0.2s;
+      }
+      .browse-links a:hover {
+        background: #eee;
+        border-left-color: #333;
+      }
+      .document-list {
+        list-style: none;
+        padding: 0;
+      }
+      .document-item {
+        background: white;
+        margin: 1.5rem 0;
+        padding: 1.5rem;
+        border-left: 4px solid #666;
+      }
+      .document-item h3 {
+        margin-top: 0;
+      }
+      .document-item a {
+        color: #333;
+        text-decoration: none;
+      }
+      .document-item a:hover {
+        color: #000;
+      }
+      .meta {
+        color: #666;
+        font-size: 0.9rem;
+        margin: 0.5rem 0;
+      }
+      .meta-row {
+        margin: 0.25rem 0;
+      }
+      .description {
+        color: #444;
+        font-style: italic;
+        margin-top: 0.75rem;
+      }
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+      }
+      .tag {
+        background: #e8e8e8;
+        padding: 0.25rem 0.5rem;
+        border-radius: 3px;
+        font-size: 0.85rem;
+        color: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/archives">Archives</a>
+      <a href="/blog">Blog</a>
+    </nav>
+
+    <h1>Document Archives</h1>
+    <p>Recovered materials from Bumi Bahru</p>
+
+    <div class="browse-dimensions">
+      <h2>Browse the Archive</h2>
+      <div class="browse-links">
+        <a href="/archives/by-department">📁 By Department</a>
+        <a href="/archives/by-type">📄 By Document Type</a>
+        <a href="/archives/by-date">📅 By Date</a>
+        <a href="/archives/by-subject">🏷️ By Subject</a>
+      </div>
+    </div>
+
+    <h2>Recent Documents</h2>
+    <ul class="document-list">
+      {sortedArchives.map((doc) => (
+        <li class="document-item">
+          <h3><a href={`/archives/${doc.slug}`}>{doc.data.title}</a></h3>
+          <div class="meta">
+            <div class="meta-row">
+              <strong>Date:</strong> {doc.data.date} | 
+              <strong>Type:</strong> {doc.data.documentType}
+            </div>
+            <div class="meta-row">
+              <strong>Department:</strong> {doc.data.department} | 
+              <strong>Author:</strong> {doc.data.author}
+              {doc.data.classification && ` | ${doc.data.classification}`}
+            </div>
+          </div>
+          {doc.data.subjects && doc.data.subjects.length > 0 && (
+            <div class="tags">
+              {doc.data.subjects.map((subject) => (
+                <span class="tag">{subject}</span>
+              ))}
+            </div>
+          )}
+          <p class="description">{doc.data.description}</p>
+        </li>
+      ))}
+    </ul>
+  </body>
+</html>
